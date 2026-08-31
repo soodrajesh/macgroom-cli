@@ -1,0 +1,69 @@
+# macgroom
+
+Free dev-cache cleanup, from the terminal — the open-source CLI companion to [MacGroom](https://gogenops.com/mac-apps/macgroom/), a native macOS disk-cleanup app.
+
+Finds and (optionally, safely) clears the two categories that pile up fastest on a developer Mac:
+
+- **Dev Tool Caches** — Xcode DerivedData, Simulator Caches, npm/Yarn/pnpm/pip/Poetry/Cargo caches, `~/.cache`, and local **Ollama**/**LM Studio** model weights (the newest, and often the single biggest, bucket on a 2026 dev machine).
+- **Dev Project Artifacts** — `node_modules`, Python virtualenvs, Rust/Maven `target/`, CocoaPods `Pods/`, `.terraform`, and Next.js/Nuxt build caches, found **recursively** across every project under a given path.
+
+Pure Swift, zero third-party dependencies, no telemetry, nothing ever leaves your Mac. Every deletion goes through macOS's own Trash — recoverable until you empty it, never `rm`.
+
+## Install
+
+```bash
+brew install soodrajesh/macgroom/macgroom
+```
+
+Or build from source:
+
+```bash
+git clone https://github.com/soodrajesh/macgroom-cli.git
+cd macgroom-cli
+swift build -c release
+cp .build/release/macgroom /usr/local/bin/
+```
+
+## Usage
+
+```bash
+# List everything found under $HOME, with sizes — nothing is touched
+macgroom scan
+
+# Scope the recursive project scan to a specific directory (faster)
+macgroom scan --path ~/Developer
+
+# Machine-readable output
+macgroom scan --json
+
+# Interactive: review each item, y/n/a(ll)/q(uit)
+macgroom clean
+
+# Non-interactive: trash every *safe* item without asking
+macgroom clean --yes
+
+# See exactly what --yes would do, without doing it
+macgroom clean --yes --dry-run
+
+# Also include AI model weights (Ollama/LM Studio) in --yes mode —
+# excluded by default since you may still be using a given model
+macgroom clean --yes --include-review
+```
+
+## Safety model
+
+Same principle as the GUI app: **every deletion goes through Trash**, and nothing is ever auto-selected that isn't safely regenerable. Dev Tool Caches and Dev Project Artifacts are fully rebuildable by the tool that made them (`npm install`, `cargo build`, etc.) — marked safe, included by `--yes`. Local AI model weights are *technically* re-downloadable but you might still be actively using one, so they're always flagged for review (`!` in `scan` output) and excluded from `--yes` unless you pass `--include-review`.
+
+## Relationship to the MacGroom app
+
+This CLI covers the two categories above — free forever, matching what's free in the [MacGroom GUI app's](https://gogenops.com/mac-apps/macgroom/) own free tier. The GUI app additionally covers general System & App Caches, Browser Caches, Downloads, Trash, and an App Cleaner (free), plus Deep Scan, Storage Trend, and a menu bar widget (MacGroom Pro, one-time $24). This CLI doesn't gate anything — it's a standalone free tool, not a trial.
+
+The GUI app itself is closed-source; this CLI is an independent, from-scratch, open-source implementation of the same underlying scan logic — see [License](#license).
+
+## Issues & feature requests
+
+[soodrajesh/macgroom-support](https://github.com/soodrajesh/macgroom-support/issues/new/choose)
+
+## License
+
+MIT — see [LICENSE](LICENSE).
