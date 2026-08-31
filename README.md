@@ -9,6 +9,24 @@ Finds and (optionally, safely) clears the two categories that pile up fastest on
 
 Pure Swift, zero third-party dependencies, no telemetry, nothing ever leaves your Mac. Every deletion goes through macOS's own Trash — recoverable until you empty it, never `rm`.
 
+## Demo: the safety model, end to end
+
+A real Ollama model pulled onto a real Mac, flagged for review by the MacGroom app (never auto-selected — you might still be using it), cleaned deliberately through the GUI, then confirmed gone with this CLI:
+
+![MacGroom flags a real Ollama model for review, then cleans it via the GUI](demo/scan-then-clean.gif)
+
+```
+$ macgroom scan
+!  397.8 MB   Ollama Models
+     /Users/…/.ollama/models
+...
+$ # cleaned via the MacGroom app — moved to Trash, not rm'd
+$ macgroom scan
+# Ollama Models no longer listed — /Users/…/.ollama/models is gone
+```
+
+Same underlying scan logic, same `!`-for-review gating, same Trash-not-`rm` safety model in both the CLI and the GUI app — this is that consistency, not a mockup.
+
 ## Install
 
 ```bash
