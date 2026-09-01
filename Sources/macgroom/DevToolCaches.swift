@@ -23,11 +23,32 @@ enum DevToolCaches {
         add("Library/Caches/pip", label: "pip Cache", safe: true)
         add("Library/Caches/pypoetry", label: "Poetry Cache", safe: true)
         add(".cargo/registry", label: "Cargo Registry Cache", safe: true)
-        add(".cache", label: "~/.cache (XDG, includes Hugging Face's model cache)", safe: true)
+
+        // ~/.cache is safe:true by default (it's regenerable XDG junk) —
+        // *unless* Hugging Face's model cache lives inside it, in which
+        // case the whole directory is promoted to safe:false too. Marking
+        // only the huggingface subfolder unsafe wouldn't actually protect
+        // it: FileManager.trashItem operates on whole paths, so a plain
+        // `--yes` sweep of the safe:true parent would trash the "review-
+        // required" child right along with it. Same treatment as Ollama/
+        // LM Studio otherwise — the point of --include-review is that you
+        // have to mean it.
+        let cacheURL = home.appendingPathComponent(".cache")
+        let hfURL = cacheURL.appendingPathComponent("huggingface")
+        let hasHuggingFace = fm.fileExists(atPath: hfURL.path)
+        add(
+            ".cache",
+            label: hasHuggingFace
+                ? "~/.cache (includes Hugging Face model weights — review before removing one you still use)"
+                : "~/.cache (XDG cache directory)",
+            safe: !hasHuggingFace
+        )
 
         // Local AI model weights — re-downloadable, but the user may still
         // be using a given model, so `safe: false`: never swept into a
-        // plain `--yes` clean without `--include-review`.
+        // plain `--yes` clean without `--include-review`. Same treatment
+        // for all three tools that keep their own separate copy of the
+        // same checkpoint.
         add(".ollama/models", label: "Ollama Models", safe: false)
         add(".lmstudio/models", label: "LM Studio Models", safe: false)
 
