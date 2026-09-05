@@ -31,7 +31,7 @@ Same underlying scan logic, same `!`-for-review gating, same Trash-not-`rm` safe
 ## Install
 
 ```bash
-brew install soodrajesh/macgroom/macgroom
+brew install soodrajesh/tap/macgroom
 ```
 
 Or build from source:
